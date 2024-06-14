@@ -33,9 +33,12 @@ st.markdown("""
 
 @st.cache_resource
 def load_summarizer():
-    return pipeline("summarization", model="sshleifer/distilbart-cnn-12-6", revision="a4f8f3e")
+    return pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
 
 def summarize_text(text, max_length=150):
+    if not text.strip():
+        return "The provided text is empty."
+    
     summarizer = load_summarizer()
     return summarizer(text, max_length=max_length, min_length=25, do_sample=False)[0]['summary_text']
 
@@ -65,8 +68,11 @@ if choice == "Summarize Text":
                 st.info(input_text)
             with col2:
                 st.markdown("**Summary Result**")
-                result = summarize_text(input_text)
-                st.success(result)
+                try:
+                    result = summarize_text(input_text)
+                    st.success(result)
+                except Exception as e:
+                    st.error(f"An error occurred during summarization: {e}")
         else:
             st.error("Please enter some text to summarize.")
 
@@ -78,12 +84,18 @@ elif choice == "Summarize Document":
         with col1:
             st.info("File uploaded successfully", icon="✅")
             extracted_text = extract_text_from_pdf(input_file)
-            st.markdown("**Extracted Text is Below:**")
-            st.info(extracted_text, icon="📄")
-        with col2:
-            st.markdown("**Summary Result**")
-            doc_summary = summarize_text(extracted_text)
-            st.success(doc_summary)
+            if not extracted_text.strip():
+                st.error("No text could be extracted from the document.")
+            else:
+                st.markdown("**Extracted Text is Below:**")
+                st.info(extracted_text, icon="📄")
+                with col2:
+                    st.markdown("**Summary Result**")
+                    try:
+                        doc_summary = summarize_text(extracted_text)
+                        st.success(doc_summary)
+                    except Exception as e:
+                        st.error(f"An error occurred during summarization: {e}")
 
 # Add a footer
 st.markdown("""
