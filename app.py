@@ -1,7 +1,8 @@
 import streamlit as st
-from txtai.pipeline import Summary, Textractor
+from txtai.pipeline import Summary
 from PyPDF2 import PdfReader
 
+# Set the page configuration
 st.set_page_config(layout="wide")
 
 # Add custom CSS
@@ -47,6 +48,7 @@ def extract_text_from_pdf(file_path):
 # Add a header image
 st.image("https://via.placeholder.com/1200x300.png?text=Document+Summarizer+App", use_column_width=True)
 
+# Sidebar choice selection
 choice = st.sidebar.selectbox("Select your choice", ["Summarize Text", "Summarize Document"])
 
 if choice == "Summarize Text":
@@ -68,19 +70,20 @@ if choice == "Summarize Text":
 elif choice == "Summarize Document":
     st.subheader("Summarize Document")
     input_file = st.file_uploader("Upload your document here", type=['pdf'])
-    if input_file and st.button("Summarize Document"):
-        with open("doc_file.pdf", "wb") as f:
-            f.write(input_file.getbuffer())
-        col1, col2 = st.columns([1, 1])
-        with col1:
-            st.info("File uploaded successfully", icon="✅")
-            extracted_text = extract_text_from_pdf("doc_file.pdf")
-            st.markdown("**Extracted Text is Below:**")
-            st.info(extracted_text, icon="📄")
-        with col2:
-            st.markdown("**Summary Result**")
-            doc_summary = text_summary(extracted_text)
-            st.success(doc_summary)
+    if input_file:
+        if st.button("Summarize Document"):
+            with open("doc_file.pdf", "wb") as f:
+                f.write(input_file.getbuffer())
+            col1, col2 = st.columns([1, 1])
+            with col1:
+                st.info("File uploaded successfully", icon="✅")
+                extracted_text = extract_text_from_pdf("doc_file.pdf")
+                st.markdown("**Extracted Text is Below:**")
+                st.info(extracted_text, icon="📄")
+            with col2:
+                st.markdown("**Summary Result**")
+                doc_summary = text_summary(extracted_text)
+                st.success(doc_summary)
 
 # Add a footer
 st.markdown("""
