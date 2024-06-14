@@ -49,10 +49,10 @@ def extract_text_from_pdf(file):
     return text
 
 # Add a header image
-st.image("https://via.placeholder.com/1200x300.png?text=Document+Summarizer+App", use_column_width=True)
+st.image("./wall.jpg", use_column_width=True)
 
 # Sidebar choice selection
-choice = st.sidebar.selectbox("Select your choice", ["Summarize Text", "Summarize Document"])
+choice = st.sidebar.selectbox("Select your choice", ["Summarize Text",])
 
 if choice == "Summarize Text":
     st.subheader("Summarize Text")
@@ -89,6 +89,6 @@ elif choice == "Summarize Document":
 st.markdown("""
     <div style='text-align: center; padding: 10px; margin-top: 20px;'>
         <hr>
-        <p style='font-size: 14px;'>Made with ❤️ using Streamlit</p>
+        <p style='font-size: 14px;'>Made By Papers Kingdom</p>
     </div>
 """, unsafe_allow_html=True)
