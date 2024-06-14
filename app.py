@@ -1,5 +1,5 @@
 import streamlit as st
-from txtai.pipeline import Summary
+from transformers import pipeline
 from PyPDF2 import PdfReader
 
 # Set the page configuration
@@ -32,17 +32,20 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 @st.cache_resource
-def text_summary(text, maxlength=None):
-    summary = Summary()
-    result = summary(text)
-    return result
+def load_summarizer():
+    return pipeline("summarization", model="sshleifer/distilbart-cnn-12-6", revision="a4f8f3e")
 
-def extract_text_from_pdf(file_path):
-    with open(file_path, "rb") as f:
-        reader = PdfReader(f)
-        text = ""
-        for page in reader.pages:
-            text += page.extract_text()
+def summarize_text(text, max_length=150):
+    summarizer = load_summarizer()
+    return summarizer(text, max_length=max_length, min_length=25, do_sample=False)[0]['summary_text']
+
+def extract_text_from_pdf(file):
+    reader = PdfReader(file)
+    text = ""
+    for page in reader.pages:
+        page_text = page.extract_text()
+        if page_text:
+            text += page_text
     return text
 
 # Add a header image
@@ -62,7 +65,7 @@ if choice == "Summarize Text":
                 st.info(input_text)
             with col2:
                 st.markdown("**Summary Result**")
-                result = text_summary(input_text)
+                result = summarize_text(input_text)
                 st.success(result)
         else:
             st.error("Please enter some text to summarize.")
@@ -70,20 +73,17 @@ if choice == "Summarize Text":
 elif choice == "Summarize Document":
     st.subheader("Summarize Document")
     input_file = st.file_uploader("Upload your document here", type=['pdf'])
-    if input_file:
-        if st.button("Summarize Document"):
-            with open("doc_file.pdf", "wb") as f:
-                f.write(input_file.getbuffer())
-            col1, col2 = st.columns([1, 1])
-            with col1:
-                st.info("File uploaded successfully", icon="✅")
-                extracted_text = extract_text_from_pdf("doc_file.pdf")
-                st.markdown("**Extracted Text is Below:**")
-                st.info(extracted_text, icon="📄")
-            with col2:
-                st.markdown("**Summary Result**")
-                doc_summary = text_summary(extracted_text)
-                st.success(doc_summary)
+    if input_file and st.button("Summarize Document"):
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            st.info("File uploaded successfully", icon="✅")
+            extracted_text = extract_text_from_pdf(input_file)
+            st.markdown("**Extracted Text is Below:**")
+            st.info(extracted_text, icon="📄")
+        with col2:
+            st.markdown("**Summary Result**")
+            doc_summary = summarize_text(extracted_text)
+            st.success(doc_summary)
 
 # Add a footer
 st.markdown("""
