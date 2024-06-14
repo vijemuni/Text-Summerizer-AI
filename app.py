@@ -20,7 +20,7 @@ st.markdown("""
         }
         .uploaded-file-info {
             font-size: 16px;
-            color: #2b2b2b;
+            color: black;
         }
         .summary-result {
             background-color: #e8f5e9;
